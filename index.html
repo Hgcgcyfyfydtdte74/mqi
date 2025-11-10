@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>量元計畫X 碼躍新境 | Maker's Quest Initiative (MQI) | 台灣學生科技團隊</title>
+    
     <style>
+        /* 1. 啟用平滑捲動 (動態優化) */
+        html {
+            scroll-behavior: smooth;
+        }
+
         /* 基本重設與字體 */
         body { 
             font-family: '微軟正黑體', 'Microsoft JhengHei', sans-serif; 
@@ -43,10 +49,11 @@
             padding: 14px 25px; 
             text-decoration: none; 
             text-align: center; 
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s; /* 增加 transform 過渡 */
         }
         nav a:hover { 
             background-color: #008cff; /* 淺藍色 */
+            transform: translateY(-2px); /* 懸停時稍微上移 (動態優化) */
         }
 
         /* 主要內容容器 */
@@ -96,12 +103,16 @@
             margin-bottom: 20px;
             padding-left: 15px;
             border-left: 4px solid #ff6600;
+            cursor: pointer; /* 顯示滑鼠游標，增加互動感 */
+        }
+        .project-item:hover {
+            background-color: #fafafa;
         }
         .project-item h4 {
             margin: 0 0 5px 0;
             color: #333;
         }
-        
+
         /* 社群連結樣式 */
         .social-links a {
             display: inline-block;
@@ -111,10 +122,11 @@
             margin: 5px;
             text-decoration: none;
             border-radius: 5px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, box-shadow 0.3s;
         }
         .social-links a:hover {
             background-color: #004d99;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* 增加陰影 (動態優化) */
         }
 
         /* 頁腳樣式 */
@@ -125,6 +137,17 @@
             padding: 15px 0; 
             margin-top: 30px; 
             font-size: 0.9em;
+        }
+
+        /* 2. 滾動時的淡入動畫 (CSS 動態優化) */
+        .section, .hero {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease-out, transform 1s ease-out; /* 設置過渡時間 */
+        }
+        .section.fade-in, .hero.fade-in {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -161,19 +184,25 @@
             <h3>我們的挑戰與專案成果 🔬🎮</h3>
             <p>在量元計畫中，我們將學習到的理論知識轉化為實際的應用成果。我們的專案涵蓋多個前瞻領域，展現了團隊在多元科技整合上的雄心：</p>
 
-            <div class="project-item">
+            <div class="project-item" onclick="toggleDetails(this)">
                 <h4>🕹️ 沉浸式應用開發</h4>
-                <p>嘗試打造高性能的**遊戲模擬器**，深入理解軟硬體架構與優化，推動互動體驗的新界限。</p>
+                <div class="project-details" style="display: none;"> 
+                    <p>嘗試打造高性能的**遊戲模擬器**，深入理解軟硬體架構與優化，推動互動體驗的新界限。</p>
+                </div>
             </div>
 
-            <div class="project-item">
+            <div class="project-item" onclick="toggleDetails(this)">
                 <h4>🤖 人工智慧與數據分析</h4>
-                <p>開發實用的 **AI 工具**，從機器學習模型到自動化解決方案，應對現實世界的挑戰。</p>
+                <div class="project-details" style="display: none;"> 
+                    <p>開發實用的 **AI 工具**，從機器學習模型到自動化解決方案，應對現實世界的挑戰。</p>
+                </div>
             </div>
 
-            <div class="project-item">
+            <div class="project-item" onclick="toggleDetails(this)">
                 <h4>📊 系統架構與資料整合</h4>
-                <p>建構穩健高效的資料系統與後端服務，奠定未來數位基礎，確保專案具備規模化能力。</p>
+                <div class="project-details" style="display: none;"> 
+                    <p>建構穩健高效的資料系統與後端服務，奠定未來數位基礎，確保專案具備規模化能力。</p>
+                </div>
             </div>
             
             <p>每一個專案都是我們挑戰自我、追求卓越的證明。你會親眼見證學生的創意想法如何蛻變成真實可用的作品。</p>
@@ -203,5 +232,49 @@
         <p>© 2025~2099 MetaQuant Initiative 版權所有. 開發團隊MetaQuant Initiative 保留一切權利。</p>
     </footer>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // --- 滾動淡入功能 (Fade-in on Scroll) ---
+            const fadeElements = document.querySelectorAll('.section, .hero');
+            
+            // 判斷元素是否在視窗內
+            const isVisible = (element) => {
+                const rect = element.getBoundingClientRect();
+                // 只要元素頂部進入視窗底部 100px 範圍內，就觸發
+                return (
+                    rect.top <= (window.innerHeight || document.documentElement.clientHeight) - 100
+                );
+            };
+
+            // 處理捲動事件
+            const handleScroll = () => {
+                fadeElements.forEach(element => {
+                    // 如果元素可見且尚未擁有 fade-in 類別，則添加
+                    if (isVisible(element) && !element.classList.contains('fade-in')) {
+                        element.classList.add('fade-in');
+                    }
+                });
+            };
+
+            // 首次加載時檢查一次，並監聽捲動事件
+            handleScroll();
+            window.addEventListener('scroll', handleScroll);
+        });
+
+        // --- 專案點擊開合功能 (Toggle Details) ---
+        window.toggleDetails = function(element) {
+            const details = element.querySelector('.project-details');
+            // 使用 slideToggle 效果，但這裡用簡單的 display: none/block 模擬
+            if (details.style.display === 'none') {
+                // 展開
+                details.style.display = 'block';
+                // 可以在這裡加入 CSS 動畫，讓展開更平滑 (例如使用 max-height 過渡)
+            } else {
+                // 收合
+                details.style.display = 'none';
+            }
+        };
+    </script>
 </body>
 </html>
